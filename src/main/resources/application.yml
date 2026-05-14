@@ -1,0 +1,32 @@
+spring:
+  application:
+    name: ecommerce-redis-demo
+  data:
+    mongodb:
+      uri: ${MONGO_URI:mongodb://localhost:27017/ecom}
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+      timeout: 2000ms
+      lettuce:
+        pool:
+          max-active: 16
+          max-idle: 8
+          min-idle: 2
+          max-wait: 200ms
+  cache:
+    type: redis
+
+server:
+  port: 8080
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,caches
+
+logging:
+  level:
+    com.learn.ecom: DEBUG
+    org.springframework.data.redis: INFO
