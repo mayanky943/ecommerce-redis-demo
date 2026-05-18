@@ -31,7 +31,12 @@ public class ProductService {
 
     @Cacheable(cacheNames = "products", key = "#id", unless = "#result == null")
     public Product findById(String id) {
-        log.info("[CACHE MISS] hitting MongoDB for product id={}", id);
+        log.info("[CACHE MISS] hitting MongoDB for product id={} (simulating slow DB, 3s)", id);
+        try {
+            Thread.sleep(3000);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
         return repo.findById(id).orElse(null);
     }
 

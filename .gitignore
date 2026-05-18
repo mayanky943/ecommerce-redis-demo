@@ -1,8 +1,11 @@
 target/
+target_old_*/
+dist/
 *.class
 *.iml
 .idea/
 .vscode/
 .mvn/
+.claude/
 *.log
 HELP.md

@@ -1,9 +1,9 @@
 package com.learn.ecom.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
 import org.springframework.data.redis.cache.RedisCacheConfiguration;
 import org.springframework.data.redis.cache.RedisCacheManager;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
@@ -28,14 +28,22 @@ import java.util.Map;
  *
  * Serializer is GenericJackson2JsonRedisSerializer so values stored in Redis are
  * human-readable JSON — open redis-cli and run `GET product:p-1` to verify.
+ *
+ * Uses a dedicated redisObjectMapper with default typing for cache deserialization,
+ * while REST responses use a clean ObjectMapper without type info.
  */
 @Configuration
 public class RedisConfig {
 
     @Bean
-    public RedisTemplate<String, Object> redisTemplate(RedisConnectionFactory cf,
-                                                       ObjectMapper mapper) {
-        var json = new GenericJackson2JsonRedisSerializer(mapper);
+    @Primary
+    public ObjectMapper objectMapper() {
+        return new ObjectMapper();
+    }
+
+    @Bean
+    public RedisTemplate<String, Object> redisTemplate(RedisConnectionFactory cf) {
+        var json = new GenericJackson2JsonRedisSerializer();
         RedisTemplate<String, Object> tpl = new RedisTemplate<>();
         tpl.setConnectionFactory(cf);
         tpl.setKeySerializer(new StringRedisSerializer());
@@ -52,8 +60,8 @@ public class RedisConfig {
     }
 
     @Bean
-    public RedisCacheManager cacheManager(RedisConnectionFactory cf, ObjectMapper mapper) {
-        var json = new GenericJackson2JsonRedisSerializer(mapper);
+    public RedisCacheManager cacheManager(RedisConnectionFactory cf) {
+        var json = new GenericJackson2JsonRedisSerializer();
 
         RedisCacheConfiguration base = RedisCacheConfiguration.defaultCacheConfig()
                 .entryTtl(Duration.ofMinutes(10))
